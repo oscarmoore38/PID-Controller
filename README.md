@@ -64,5 +64,41 @@ It also helps with jitter — which are tiny rapid back-and-forth movements arou
 
 One thing I thought was pretty neat when learning about PID controllers is that not every system uses the full PID. For example, I read that some robotic arms use just P and D. Since I is slow and brings the risk of windup (especially if something blocks the arm), a lot of engineers prefer to skip it entirely and rely on P and D. I originally assumed you’d always want I to eliminate steady-state error and get perfect positioning, but apparently a well-tuned PD loop, modern encoders, and good mechanical design can hit target angles with sub-degree accuracy. There’s obviously a lot more behind how real robotic systems use just PD - with lots of terms I don't understand yet - and my explanation here is really surface-level, but I’m not there yet. I’ll dig into it eventually, but, for now, I’m sticking to what I actually need to get this project moving.
 
+## Project Details
+
+Ok, now into the details of this project. The ultimate goal here is to play around with writing my own PID logic in C++. To do that, I’m building a simple closed-loop system made up of a 12V DC motor, an encoder, and an Arduino microcontroller that will run the PID loop and send commands to the motor driver. I’ve also added a 0.96" OLED display module so I can visually show the current position while everything is running. It’s a small setup, but it gives me just enough moving parts to experiment, break things, learn why they broke, and tweak the control logic as I go.
+
+I could list out all the hardware I bought and pretend there were deep reasons for each choice, but honestly, this is a personal DIY project. Nothing here is supporting anything critical, so cost was the main factor behind every purchase. If it was cheap and had reasonable reviews, I bought it.
+
+The one thing that probably is worth talking about is the choice of “brain” for the system — specifically, why I went with a microcontroller board instead of a Raspberry Pi. A Raspberry Pi would be the better choice if this project needed higher-level computing — camera inputs, running multiple processes, logging data, or any kind of networking or UI. Basically, if the project needed “computer stuff.” But for a simple real-time control loop where timing needs to be predictable and I just need to run my own C++ logic without an OS getting in the way, an Arduino felt like the better fit.
+
+There were a few different Arduinos I could have chosen. The two I considered were the **Arduino Uno Rev3** and the **Arduino Nano**. Both use an **ATmega328P** microcontroller, so there wasn’t much daylight between them in terms of capability. I ultimately chose the **Nano** because of its smaller footprint.
+
+---
+
+## Hardware Used
+
+**Motor / Encoder**  
+*12V DC motor with built-in quadrature encoder*  
+25GA370 DC Encoder Metal Gearmotor – 12V, 150 RPM, Two-Channel Hall-Effect Encoder
+
+**Microcontroller**  
+Arduino Nano [A000005] – ATmega328P, 22 Digital I/O Pins, 8 Analog Inputs, USB Interface
+
+**Breadboard + Jumpers**  
+BOJACK Solderless Breadboard Kit – 830pt + 400pt boards and jumper wires
+
+**Power Supply (AC → DC)**  
+12V 2A regulated wall adapter
+
+**Buck Converter**  
+Maxmoral LM2596 Step-Down (DC-DC) Module – for generating 5V logic power
+
+**Motor Driver**  
+DROK L298 Dual H-Bridge Motor Speed Controller – optocoupler isolation, 6.5V–27V input
+
+**Display**  
+ELEGOO 0.96" OLED I2C Display (SSD1306-compatible)
+
 
 
