@@ -76,7 +76,9 @@ There were a few different Arduinos I could have chosen. The two I considered we
 
 ---
 
-## Hardware Used
+## Hardware Design
+
+### Hardware List
 
 **Motor / Encoder**  
 *12V DC motor with built-in quadrature encoder*  
@@ -100,5 +102,18 @@ DROK L298 Dual H-Bridge Motor Speed Controller – optocoupler isolation, 6.5V�
 **Display**  
 ELEGOO 0.96" OLED I2C Display (SSD1306-compatible)
 
+### Wiring Diagram
+
+I wanted to keep the wiring for this project as simple as possible, so here’s the whole layout in one place. The idea is straightforward: 12V comes in through the barrel jack, the buck converter steps that down to 5V for all the logic, and the motor driver handles the power for the motor. Everything else (encoder, OLED, Arduino) taps into the shared 5V/GND rails and feeds its signals back into the Arduino for control. I used Fritzing to build the wiring diagram below: 
+
+![Wiring Diagram](diagrams/wiring.png)
+
+**Quick reference:**
+- **12V** → motor driver VIN + buck converter IN  
+- **Buck converter 5V** → Arduino + OLED + encoder + motor driver logic  
+- **Encoder A/B** → D2 / D3 on Arduino
+- **OLED SDA/SCL** → A4 / A5 on Arduino
+- **Motor driver DIR/PWM** → D4 / D6 on Arduino
+- **All grounds** tied into one common rail 
 
 
