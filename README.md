@@ -20,7 +20,7 @@ My last project was entirely software-driven. I designed the kinematics and moti
 
 The idea for this project came while watching my Roomba navigate around my living room. As it moved from hardwood to a rug, I caught myself thinking:
 
-> *How does it keep it speed up when hitting the rug?*
+> *How does it keep its speed up when hitting the rug?*
 
 A few Google searches later I ended up deep in the world of **PID controllers**.
 
