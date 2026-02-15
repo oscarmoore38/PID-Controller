@@ -14,7 +14,7 @@ float PIDController:: PIDControl(float error, Motor& myMotor, LoopTime& myTime)
         myMotor.PWM += (Kp * error);  
     } else{
         Integral += error * myTime.dt; 
-        myMotor.PWM += (Kp * error) + (Ki * error * myTime.dt);  
+        myMotor.PWM += (Kp * error) + (Ki * Integral);  
     }
 
     if (myMotor.PWM < 0){
