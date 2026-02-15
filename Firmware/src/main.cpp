@@ -5,7 +5,7 @@
 #include "Types.h"
 
 Display myDisplay; 
-PIDController myPIDController(0.5, 0.07); 
+PIDController myPIDController(0.5, 0.05); 
 
 LoopTime myTime;
 Motor myMotor;
@@ -69,7 +69,7 @@ void loop()
     Serial.print(myMotor.RPMs);
     Serial.print(",");
     Serial.println(myMotor.PWM);
-    
+
 
   }
 
