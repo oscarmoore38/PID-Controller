@@ -19,7 +19,8 @@ The script is used as a tooling aid for logging and visualizing my embedded syst
 PORT = '/dev/tty.usbserial-BG02BZYT'  # Mac
 BAUD = 115200
 DURATION = 60          # seconds to log
-OUTPUT_FILE = "pid_disturbance_test.csv" # change 
+OUTPUT_FILE = "pid_disturbance_test_lower.csv" # change 
+#pid_disturbance_test
 # =======================
 
 print("Connecting to serial...")
