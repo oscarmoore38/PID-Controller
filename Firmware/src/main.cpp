@@ -34,6 +34,8 @@ void setup()
 
   analogWrite(myPins.ENA, myMotor.PWM);
 
+  Serial.begin(115200);
+
   myDisplay.Begin();
 
   attachInterrupt(digitalPinToInterrupt(myPins.inPin1), IsrIncrement, RISING);
@@ -61,6 +63,13 @@ void loop()
     myMotor.PWM = myPIDController.PIDControl(error, myMotor, myTime);
 
     analogWrite(myPins.ENA, myMotor.PWM);
+
+    Serial.print(myTime.currentTime);
+    Serial.print(",");
+    Serial.print(myMotor.RPMs);
+    Serial.print(",");
+    Serial.println(myMotor.PWM);
+    
 
   }
 
