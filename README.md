@@ -121,5 +121,24 @@ For now the focus was on having some old fashioned embedded fun, learning the ha
 
 **Tinkering for the win!**
 
+## Learnings from Project
+
+Below are a couple of things that tripped me up during this project. 
+
+**Breadboard power rails are passive**  
+My barrel jack was plugged into normal columns, not the power rails, so only those columns had 12V and GND. The rails stayed unpowered until I jumpered them over. Obvious in hindsight, but a good reminder that breadboards don’t distribute power unless you wire them to.
+
+**Motor Control**  
+The motor just spins when you apply power. Speed comes from PWM duty cycle, where the signal is rapidly switched on and off. The percentage of time it stays on determines the average power the motor sees. Direction doesn’t come from “left” or “right” encoder wires. It comes from order: if channel A triggers before B the shaft is moving one way; if B triggers before A it’s the other. Orientation doesn’t matter because the software defines the meaning.
+
+**Keep ISRs enabled as much as possible**  
+In my main loop, I originally disabled interrupts and then did real work before re-enabling them (RPM math). I learnt this isn't best practice, and you should keep the interrupts-off window minimal. 
+
+**Atomic snapshot for encoder counts**  
+I created a race condition by reading `pulseCount` and resetting it outside the same interrupts-off section. An ISR could fire between those operations, corrupting the measurement window. The fix was to copy and reset the counter inside a single interrupts-off block, then compute RPM afterward.
+
+**Nano bootloader and baud rate mismatch**  
+Initial uploads failed with `avrdude: stk500_recv(): programmer is not responding`. The fix was setting `board = nanoatmega328new`, which uses the 115200 baud bootloader. Baud, as I learnt, is simply the data rate on the serial line, and both sides must match.
+
 
 
