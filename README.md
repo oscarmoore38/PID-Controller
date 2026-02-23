@@ -1,26 +1,19 @@
-## What is a PID Controller?
+## PID Controller 
 
-I’m trying to go deeper into embedded work, so this wasn’t about just making a motor spin. I wanted to see what all the control theory actually looks like when it meets real hardware. Things don’t behave as cleanly as they do in simulation, and that was the whole point. Writing the PID loop myself in C++ let me experiment, break things, and slowly understand what was actually going on.
+### Why build a PID Controller?
+If you’ve glanced around my GitHub, you’ve probably noticed that my interests tend to orbit two areas: **C++** and **robotics**. I’m still early in this space and feeling out where I’d like to go, but one thing is consistent: I’m curious, and I like understanding how things work all the way down to the hardware.
 
-### My Understanding of PID 
-PID stands for **Proportional, Integral, Derivative**. It’s a closed-loop control method that continuously reduces the error between a target value (setpoint) and the measured value (process variable).
+My last project was entirely software-driven. I designed the kinematics and motion logic, but didn’t actually build the physical arm. This time I wanted to get my hands on sensors, encoders, and a microcontroller — to bridge the gap between simulation and something I can actually see and touch.
 
-The way it clicked for me was thinking about cruise control in a car.  
-If the setpoint is 70 mph and the current speed is 62 mph, the error is 8 mph.  
-A PID controller looks at that error and decides how hard to drive the motor.
+The idea for this project came while watching my Roomba navigate around my living room. As it moved from hardwood to a rug, I caught myself thinking:
 
-At a high level:
+> *How does it keep its speed up when hitting the rug?*
 
-* **P** increases output in proportion to the size of the error  
-* **I** removes long-term offset by accumulating past error  
-* **D** slows the system when the error is changing too quickly  
-
-Each term has trade-offs.  
-P alone can leave a steady-state error.  
-I can eliminate that but risks integral windup if the actuator saturates.  
-D helps reduce overshoot and jitter by reacting to how fast the error is changing.
+A few Google searches later I ended up deep in the world of **PID controllers**.
 
 ## Hardware Design
+### Overview 
+The goal here is to write my own PID logic in C++ and run it on real hardware. The system is simple: a 12V DC motor, an encoder for feedback, and an Arduino running the control loop and driving the motor through a motor driver. I added a small 0.96" OLED so I can display position in real time while tuning. It’s a small setup, but it has just enough moving parts to experiment, break things, figure out why they broke, and tweak the control logic. I could pretend every hardware choice was deeply researched, but this is a personal project. Cost was the main factor. If it was inexpensive and had decent reviews, I used it. The one decision that *was* intentional was the controller. I chose a microcontroller instead of a Raspberry Pi because this is a real-time control problem. I don’t need an OS, networking, or a UI. I just need predictable timing and direct control of the hardware. An Arduino fits that better than a Pi. I considered both the **Arduino Uno Rev3** and the **Arduino Nano**. Since they use the same **ATmega328P**, the capabilities are almost identical. I chose the Nano purely for its smaller footprint.
 
 ### Hardware List
 
