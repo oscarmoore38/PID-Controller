@@ -121,6 +121,72 @@ For now the focus was on having some old fashioned embedded fun, learning the ha
 
 **Tinkering for the win!**
 
+## Tests 
+
+### Test 1 (Ki = 0.07)
+
+This test used a 150 RPM setpoint. I logged both the measured RPM and the PWM output over time.
+
+On startup the motor reaches the target quickly with a small overshoot (peaks around ~160 RPM) and then settles close to the setpoint. After about 15–20 seconds the response is stable and stays within a very tight band around 150 RPM.
+
+I also introduced two manual disturbances by briefly loading the shaft with a wheel and pressing my finger on it. Each time, the RPM dropped sharply and then recovered. The controller pushed the PWM higher to compensate, overshot slightly, and then returned to steady state. The recovery was fast but a bit aggressive, which shows up as the larger spikes in both RPM and PWM.
+
+Overall behavior:
+- Fast rise to the setpoint  
+- Small steady-state error  
+- Noticeable overshoot after disturbances  
+- PWM increases significantly during recovery  
+
+This indicated that the integral term was contributing strongly during error, which helped eliminate offset but made the recovery more aggressive.
+
+#### Step Response - No Load 
+
+![PID Step Response](Firmware/data/Test1/PID%20Step%20Response.png)
+
+#### PWM Output - No Load
+
+![PID Step Response](Firmware/data/Test1/PWM%20Output%20.png)
+
+#### Step Response - Load 
+
+![PID Step Response](Firmware/data/Test1/PID%20Step%20Response%20Disturbance%20Test.png)
+
+#### PWM Output - Load
+
+![PID Step Response](Firmware/data/Test1/PWM%20Output%20Disturbance%20Test.png)
+
+### Test 2 (Ki = 0.05)
+
+This test used the same 150 RPM setpoint with a lower integral gain.
+
+Startup behavior is similar to Test 1: the motor reaches the setpoint quickly with a smaller overshoot and then settles close to 150 RPM. The steady-state error remains effectively zero.
+
+Two manual disturbances were applied again. The controller still recovers quickly, but the response is noticeably smoother. The RPM spikes are smaller and the PWM output does not jump as aggressively as in Test 1.
+
+Overall behavior compared to Test 1:
+- Similar rise time  
+- Same steady-state accuracy  
+- Reduced overshoot after disturbances  
+- Smoother PWM response  
+
+Lowering Ki reduced how strongly the controller reacted to accumulated error, which made recovery less aggressive while maintaining accuracy.
+
+#### Step Response - No Load 
+
+![PID Step Response](Firmware/data/Test2KiLowered/PID%20Step%20Response%20Ki%20Lowered.png)
+
+#### PWM Output - No Load
+
+![PWM Output](Firmware/data/Test2KiLowered/PWM%20output%20Ki%20Lowered.png)
+
+#### Step Response - Load 
+
+![PID Step Response](Firmware/data/Test2KiLowered/PID%20Step%20Response%20Disturbance%20Test%20Ki%20Lowered.png)
+
+#### PWM Output - Load
+
+![PWM Output](Firmware/data/Test2KiLowered/PWM%20Output%20Disturbance%20Test%20Ki%20Lowered%20.png)
+
 ## Learnings from Project
 
 Below are a couple of things that tripped me up during this project. 
