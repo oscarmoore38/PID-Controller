@@ -6,9 +6,9 @@ PIDController:: PIDController(float KpVal, float KiVal){
     Integral = 0;  
 }
 
-float PIDController:: PIDControl(float error, Motor& myMotor, LoopTime& myTime)
+float PIDController:: PIDControl(Motor& myMotor, LoopTime& myTime)
 {
-    error = myMotor.RpmSetPoint - myMotor.RPMs;
+    float error = myMotor.RpmSetPoint - myMotor.RPMs;
 
     if((myMotor.PWM <= 0 && error < 0) || (myMotor.PWM >= 255 && error > 0)){
         myMotor.PWM += (Kp * error);  
