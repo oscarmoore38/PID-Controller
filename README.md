@@ -244,7 +244,7 @@ The motor just spins when you apply power. Speed comes from PWM duty cycle, wher
 In my main loop, I originally disabled interrupts and then did real work before re-enabling them (RPM math). I learnt this isn't best practice, and you should keep the interrupts-off window minimal. 
 
 **Atomic snapshot for encoder counts**  
-I created a race condition by reading `pulseCount` and resetting it outside the same interrupts-off section. An ISR could fire between those operations, corrupting the measurement window. The fix was to copy and reset the counter inside a single interrupts-off block, then compute RPM afterward.
+I created a race condition by copying `pulseCount` and resetting it outside the same interrupts-off section. An interrupt could fire between the copy and the reset, which would cause pulses to be lost (and the RPM calculation to be wrong for that window). The fix was to copy and reset the counter inside a single interrupts-off block, then compute RPM afterward using the local copy.
 
 **Nano bootloader and baud rate mismatch**  
 Initial uploads failed with `avrdude: stk500_recv(): programmer is not responding`. The fix was setting `board = nanoatmega328new`, which uses the 115200 baud bootloader. Baud, as I learnt, is simply the data rate on the serial line, and both sides must match.
