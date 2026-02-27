@@ -187,6 +187,33 @@ Lowering Ki reduced how strongly the controller reacted to accumulated error, wh
 
 ![PWM Output](Firmware/data/Test2KiLowered/PWM%20Output%20Disturbance%20Test%20Ki%20Lowered%20.png)
 
+### Test 3 - Sampling window lowered. 
+
+This week I went down a bit of a timing rabbit hole. Up to now my control loop was running at a 500 ms sampling window, which I picked arbitrarily. I didn’t question it. That’s 2 Hz, which I’ve since learned is very slow for a motor speed loop. I also learned about drift. My understanding is if the work inside the loop takes longer than the interval, or the controller is late checking, your timing can drift. As you can see in my latest commit, I switched to the increment method on my lastTime variables so the timing stays anchored. To check for drift, the first thing I did was log dt every cycle. I didn’t see any drift, so I assumed from that I must be executing faster than 500 ms, but how much more? 
+
+After that, more out of curiosity, I turned logging off and timed how long the control block actually takes to run. First pass was about 61 ms and the average was around 43 ms, so way faster than a 500 ms window. That led to the next question, which was what the loop rate should actually be. I went digging through a bunch of control engineer forums and kept seeing Nyquist sampling rate mentioned. I definitely don’t understand most of the theory, but the practical takeaway I used was to sample 2 to 3 times faster than the signal’s highest frequency. That made intuitive sense. I thought about a wave that goes up and down every 1 second. If I sampled at 1 second, as opposed to at least 500 ms, I might only capture it at its peak and think it’s a straight line. 
+
+To estimate that response, I followed what others on the forums were suggesting and measured when the motor hit 90% of the setpoint after a sudden change in PWM. So I disabled the I term, ran the same 0 → 150 RPM step, and measured the time to 90% of the setpoint. Result was 306 ms, which is about 3.3 Hz. Since I already knew roughly how fast my loop could run, I went ×3 and got about 10 Hz, so a 100 ms window. I pushed it slightly faster and chose 80 ms, which is about 12.5 Hz. That’s a huge step up from 2 Hz and still well within the Nano’s budget I measured. At that speed, though, the OLED was updating way too fast to be useful, so I split the timing so the motor control runs at 80 ms, the OLED updates at 400 ms, and the serial logging stays at 500 ms. I kept logging at 500 ms so I can compare new tests directly with older tests.
+
+While doing this I had a realization. My integral is calculated as `Integral += error * dt`. Since dt is basically the loop period, a bigger sampling window must mean the integral adds more each step. So by moving from 500 ms to 80 ms, I must effectively be weakening the integral action without touching Ki, right? 
+
+**Test time!**
+
+---
+
+This test kept the same PI gains as the previous test but changed the control loop timing from 500 ms to 80 ms.
+
+Startup behavior is similar in that the motor reaches the setpoint quickly and PWM spikes due to the large initial error. While the initial overshoot is about the same as previous tests, the motor settles much faster than in the 500 ms test. I did notice a bit more ripple around the setpoint (±2–3 RPM) than in the 500 ms test. I'm not sure if that counts as oscillation, but it was noticeable. Two manual disturbances were applied again. The RPM drops and PWM saturates as expected, but when the load is removed the overshoot is much lower than before and the motor returns to the setpoint more quickly. The response is smoother even though the controller is updating more often.
+
+Overall behavior compared to the 500 ms loop:
+- Similar rise time  
+- Much faster settling time after startup  
+- Reduced overshoot after disturbances  
+- Faster recovery  
+- Slightly more active PWM at steady state  
+
+So I think these tests show that reducing the loop interval reduced the effective integral action because dt is smaller in the integral calculation. This made the controller less aggressive while keeping the same Ki value. While I do see more movement around the setpoint, I don't think it counts as oscillation, and with the reduced overshoot after disturbances I'm still not inclined to introduce D right now.
+
 ## Learnings from Project
 
 Below are a couple of things that tripped me up during this project. 
