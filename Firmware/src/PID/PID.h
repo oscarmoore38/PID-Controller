@@ -6,7 +6,7 @@
 class PIDController{
 public:
     PIDController(float KpVal, float kiVal); 
-    float PIDControl(float error, Motor& myMotor, LoopTime& myTime);  
+    float PIDControl(Motor& myMotor, LoopTime& myTime);  
 
 private: 
     float Integral;

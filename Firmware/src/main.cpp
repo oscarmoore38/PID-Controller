@@ -46,31 +46,38 @@ void loop()
 
   myTime.currentTime = millis(); 
 
-  if (myTime.currentTime - myTime.lastTime >= 500){
+  if (myTime.currentTime - myTime.lastTimeMotorOutput >= myTime.MotorOutputTimeCheck){
     noInterrupts(); 
     int pulseCountLocal = pulseCount; 
     pulseCount = 0; 
     interrupts(); 
 
-    myTime.dt = (myTime.currentTime - myTime.lastTime) / 1000.0f; 
-
+    myTime.dt = (myTime.currentTime - myTime.lastTimeMotorOutput) / 1000.0f; 
+    
     myMotor.RPMs = ((float)pulseCountLocal/myMotor.motorPPR) * (60.0f/myTime.dt);
-
-    myDisplay.displayOLED(myMotor.RPMs);
-
-    myTime.lastTime = myTime.currentTime;
-
-    myMotor.PWM = myPIDController.PIDControl(error, myMotor, myTime);
+    
+    myMotor.PWM = myPIDController.PIDControl(myMotor, myTime);
 
     analogWrite(myPins.ENA, myMotor.PWM);
+    
+    myTime.lastTimeMotorOutput += myTime.MotorOutputTimeCheck; 
 
+  }
+
+  if (myTime.currentTime - myTime.lastTimeDisplayOutput >= myTime.DisplayOutputTimeCheck){
+    myDisplay.displayOLED(myMotor.RPMs);
+
+    myTime.lastTimeDisplayOutput += myTime.DisplayOutputTimeCheck;
+  }
+
+  if (myTime.currentTime - myTime.lastTimeSerialOutput >= myTime.SerialOutputTimeCheck){
     Serial.print(myTime.currentTime);
     Serial.print(",");
     Serial.print(myMotor.RPMs);
     Serial.print(",");
     Serial.println(myMotor.PWM);
 
-
+    myTime.lastTimeSerialOutput += myTime.SerialOutputTimeCheck;
   }
 
 }

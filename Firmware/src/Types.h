@@ -19,9 +19,14 @@ struct Motor {
 };
 
 struct LoopTime {
-    unsigned long lastTime = 0;
+    unsigned long lastTimeMotorOutput = 0;
+    unsigned long lastTimeDisplayOutput = 0;
+    unsigned long lastTimeSerialOutput = 0;
     unsigned long currentTime = 0;
     float dt = 0;
+    const unsigned long MotorOutputTimeCheck = 80; 
+    const unsigned long DisplayOutputTimeCheck = 400; 
+    const unsigned long SerialOutputTimeCheck = 500;  
 };
 
 #endif
