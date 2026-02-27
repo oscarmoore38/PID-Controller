@@ -214,6 +214,22 @@ Overall behavior compared to the 500 ms loop:
 
 So I think these tests show that reducing the loop interval reduced the effective integral action because dt is smaller in the integral calculation. This made the controller less aggressive while keeping the same Ki value. While I do see more movement around the setpoint, I don't think it counts as oscillation, and with the reduced overshoot after disturbances I'm still not inclined to introduce D right now.
 
+#### Step Response - No Load 
+
+![PID Step Response](Firmware/data/Test3SamplingTimeChanged/PIDStepResponseTime.png)
+
+#### PWM Output - No Load
+
+![PWM Output](Firmware/data/Test3SamplingTimeChanged/PWMOutputTiming.png)
+
+#### Step Response - Load 
+
+![PID Step Response](Firmware/data/Test3SamplingTimeChanged/PIDResponseDisturbanceTiming.png)
+
+#### PWM Output - Load
+
+![PWM Output](Firmware/data/Test3SamplingTimeChanged/PWMOutputDisturbanceTiming.png)
+
 ## Learnings from Project
 
 Below are a couple of things that tripped me up during this project. 
