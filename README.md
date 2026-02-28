@@ -212,7 +212,7 @@ Overall behavior compared to the 500 ms loop:
 - Faster recovery  
 - Slightly more active PWM at steady state  
 
-So I think these tests show that reducing the loop interval reduced the effective integral action because dt is smaller in the integral calculation. This made the controller less aggressive while keeping the same Ki value. While I do see more movement around the setpoint, I don't think it counts as oscillation, and with the reduced overshoot after disturbances I'm still not inclined to introduce D right now.
+So I think these tests show that reducing the loop interval reduced the effective integral action because dt is smaller in the integral calculation. This made the controller less aggressive while keeping the same Ki value. While I do see more movement around the setpoint, I don't think it counts as oscillation, and with the reduced overshoot after disturbances I'm still not inclined to introduce D right now. One lingering question I do have after this test is whether the overshoot only *looks* lower because I’m still logging at 500 ms while the control loop is now running much faster. It’s possible I’m missing a very fast peak between samples. From the plots it does look like the overshoot is genuinely smaller, but this might be something I want to test further with faster logging.
 
 #### Step Response - No Load 
 
