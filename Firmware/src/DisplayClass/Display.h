@@ -20,11 +20,11 @@ public:
     void displayOLED(const T&  valueToDisplay){
         oledDisplay.clearDisplay();
         oledDisplay.setCursor(0,0);
-        oledDisplay.print("RPM:");
-        oledDisplay.setCursor(0,24);
-        oledDisplay.print(valueToDisplay, 1);   
+        oledDisplay.print(valueToDisplay);   
         oledDisplay.display();
     }
+
+    void displayMotorRPM(const float Motor1RPM, const float Motor2RPM);
 
 private: 
     Adafruit_SSD1306 oledDisplay;

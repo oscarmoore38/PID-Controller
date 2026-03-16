@@ -13,7 +13,7 @@ A few Google searches later I ended up deep in the world of **PID controllers**.
 
 ## Hardware Design
 ### Overview 
-The goal here is to write my own PID logic in C++ and run it on real hardware. The system is simple: a 12V DC motor, an encoder for feedback, and an Arduino running the control loop and driving the motor through a motor driver. I added a small 0.96" OLED so I can display position in real time while tuning. It’s a small setup, but it has just enough moving parts to experiment, break things, figure out why they broke, and tweak the control logic. I could pretend every hardware choice was deeply researched, but this is a personal project. Cost was the main factor. If it was inexpensive and had decent reviews, I used it. The one decision that *was* intentional was the controller. I chose a microcontroller instead of a Raspberry Pi because this is a real-time control problem. I don’t need an OS, networking, or a UI. I just need predictable timing and direct control of the hardware. An Arduino fits that better than a Pi. I considered both the **Arduino Uno Rev3** and the **Arduino Nano**. Since they use the same **ATmega328P**, the capabilities are almost identical. I chose the Nano purely for its smaller footprint.
+The goal here is to write my own PID logic in C++ and run it on real hardware. The system is simple: a 12V DC motor, an encoder for feedback, and an Arduino running the control loop and driving the motor through a motor driver. I added a small 0.96" OLED so I can display position in real time while tuning. It’s a small setup, but it has just enough moving parts to experiment, break things, figure out why they broke, and tweak the control logic. I could pretend every hardware choice was deeply researched, but this is a personal project, so cost was the main factor. If it was inexpensive and had decent reviews, I used it. The one decision that *was* intentional was the controller. I chose a microcontroller instead of a Raspberry Pi because this is a real-time control problem. I don’t need an OS, networking, or a UI. I just need predictable timing and direct control of the hardware. An Arduino fits that better than a Pi. I considered both the **Arduino Uno Rev3** and the **Arduino Nano**. Since they use the same **ATmega328P**, the capabilities are almost identical. I chose the Nano purely for its smaller footprint.
 
 ### Hardware List
 
@@ -191,11 +191,11 @@ Lowering Ki reduced how strongly the controller reacted to accumulated error, wh
 
 This week I went down a bit of a timing rabbit hole. Up to now my control loop was running at a 500 ms sampling window, which I picked arbitrarily. I didn’t question it. That’s 2 Hz, which I’ve since learned is very slow for a motor speed loop. I also learned about drift. My understanding is if the work inside the loop takes longer than the interval, or the controller is late checking, your timing can drift. As you can see in my latest commit, I switched to the increment method on my lastTime variables so the timing stays anchored. To check for drift, the first thing I did was log dt every cycle. I didn’t see any drift, so I assumed from that I must be executing faster than 500 ms, but how much more? 
 
-After that, more out of curiosity, I turned logging off and timed how long the control block actually takes to run. First pass was about 61 ms and the average was around 43 ms, so way faster than a 500 ms window. That led to the next question, which was what the loop rate should actually be. I went digging through a bunch of control engineer forums and kept seeing Nyquist sampling rate mentioned. I definitely don’t understand most of the theory, but the practical takeaway I used was to sample 2 to 3 times faster than the signal’s highest frequency. That made intuitive sense. I thought about a wave that goes up and down every 1 second. If I sampled at 1 second, as opposed to at least 500 ms, I might only capture it at its peak and think it’s a straight line. 
+After that, more out of curiosity, I turned logging off and timed how long the control block actually takes to run. First pass was about 61 ms and the average was around 43 ms, so way faster than a 500 ms window. That led to the next question, which was what the loop rate should actually be. I went digging through a bunch of control engineer forums and kept seeing Nyquist sampling rate mentioned. I definitely don’t understand most of the theory, but the practical takeaway I took was to sample 2 to 3 times faster than the signal’s highest frequency. That made intuitive sense. If a wave goes up and down every 1 second, and I sampled at 1 second, as opposed to at least 500 ms, I might only capture it at its peak and think it’s a straight line. 
 
 To estimate that response, I followed what others on the forums were suggesting and measured when the motor hit 90% of the setpoint after a sudden change in PWM. So I disabled the I term, ran the same 0 → 150 RPM step, and measured the time to 90% of the setpoint. Result was 306 ms, which is about 3.3 Hz. Since I already knew roughly how fast my loop could run, I went ×3 and got about 10 Hz, so a 100 ms window. I pushed it slightly faster and chose 80 ms, which is about 12.5 Hz. That’s a huge step up from 2 Hz and still well within the Nano’s budget I measured. At that speed, though, the OLED was updating way too fast to be useful, so I split the timing so the motor control runs at 80 ms, the OLED updates at 400 ms, and the serial logging stays at 500 ms. I kept logging at 500 ms so I can compare new tests directly with older tests.
 
-While doing this I had a realization. My integral is calculated as `Integral += error * dt`. Since dt is basically the loop period, a bigger sampling window must mean the integral adds more each step. So by moving from 500 ms to 80 ms, I must effectively be weakening the integral action without touching Ki, right? 
+While doing this I had a thought. My integral is calculated as `Integral += error * dt`. Since dt is basically the loop period, a bigger sampling window must mean the integral adds more each step. So by moving from 500 ms to 80 ms, I must effectively be weakening the integral action without touching Ki, right? 
 
 **Test time!**
 
@@ -212,7 +212,23 @@ Overall behavior compared to the 500 ms loop:
 - Faster recovery  
 - Slightly more active PWM at steady state  
 
-So I think these tests show that reducing the loop interval reduced the effective integral action because dt is smaller in the integral calculation. This made the controller less aggressive while keeping the same Ki value. While I do see more movement around the setpoint, I don't think it counts as oscillation, and with the reduced overshoot after disturbances I'm still not inclined to introduce D right now.
+So I think these tests show that reducing the loop interval reduced the effective integral action because dt is smaller in the integral calculation. This made the controller less aggressive while keeping the same Ki value. While I do see more movement around the setpoint, I don't think it counts as oscillation, and with the reduced overshoot after disturbances I'm still not inclined to introduce D right now. One lingering question I do have after this test is whether the overshoot only *looks* lower because I’m still logging at 500 ms while the control loop is now running much faster. It’s possible I’m missing a very fast peak between samples. From the plots it does look like the overshoot is genuinely smaller, but this might be something I want to test further with faster logging.
+
+#### Step Response - No Load 
+
+![PID Step Response](Firmware/data/Test3SamplingTimeChanged/PIDStepResponseTime.png)
+
+#### PWM Output - No Load
+
+![PWM Output](Firmware/data/Test3SamplingTimeChanged/PWMOutputTiming.png)
+
+#### Step Response - Load 
+
+![PID Step Response](Firmware/data/Test3SamplingTimeChanged/PIDResponseDisturbanceTiming.png)
+
+#### PWM Output - Load
+
+![PWM Output](Firmware/data/Test3SamplingTimeChanged/PWMOutputDisturbanceTiming.png)
 
 ## Learnings from Project
 
@@ -228,7 +244,7 @@ The motor just spins when you apply power. Speed comes from PWM duty cycle, wher
 In my main loop, I originally disabled interrupts and then did real work before re-enabling them (RPM math). I learnt this isn't best practice, and you should keep the interrupts-off window minimal. 
 
 **Atomic snapshot for encoder counts**  
-I created a race condition by reading `pulseCount` and resetting it outside the same interrupts-off section. An ISR could fire between those operations, corrupting the measurement window. The fix was to copy and reset the counter inside a single interrupts-off block, then compute RPM afterward.
+I created a race condition by copying `pulseCount` and resetting it outside the same interrupts-off section. An interrupt could fire between the copy and the reset, which would cause pulses to be lost (and the RPM calculation to be wrong for that window). The fix was to copy and reset the counter inside a single interrupts-off block, then compute RPM afterward using the local copy.
 
 **Nano bootloader and baud rate mismatch**  
 Initial uploads failed with `avrdude: stk500_recv(): programmer is not responding`. The fix was setting `board = nanoatmega328new`, which uses the 115200 baud bootloader. Baud, as I learnt, is simply the data rate on the serial line, and both sides must match.
