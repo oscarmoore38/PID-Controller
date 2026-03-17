@@ -1,4 +1,4 @@
-## PID Controller 
+## PID-Controller-Arduino
 
 ### Why build a PID Controller?
 If you’ve glanced around my GitHub, you’ve probably noticed that my interests tend to orbit two areas: **C++** and **robotics**. I’m still early in this space and feeling out where I’d like to go, but one thing is consistent: I’m curious, and I like understanding how things work all the way down to the hardware.
