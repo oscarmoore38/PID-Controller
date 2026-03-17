@@ -249,5 +249,14 @@ I created a race condition by copying `pulseCount` and resetting it outside the 
 **Nano bootloader and baud rate mismatch**  
 Initial uploads failed with `avrdude: stk500_recv(): programmer is not responding`. The fix was setting `board = nanoatmega328new`, which uses the 115200 baud bootloader. Baud, as I learnt, is simply the data rate on the serial line, and both sides must match.
 
+## What's Next 
+I'm not moving off this project just yet. I still feel there's a lot I can do with it, and I'm excited to see where I can take it. As you'll see in my latest commits, I've introduced a second motor to scale up the complexity of the circuit, which will be the foundation for eventually introducing RTOS.
+
+I've genuinely enjoyed getting my hands on hardware throughout this project and want to go deeper. The Arduino has been a great entry point, but it does abstract away a lot of the lower-level, nitty-gritty hardware details I want to get into. So, to pave the way for RTOS — which the Nano's 2KB of RAM can't accommodate — and to keep this journey going, I picked up an STM32 board and will be upgrading the circuit. 
+
+That's Part 2, which I'll be documenting in a new repo. Head over there to see where it goes.
+
+Cheers!
+
 
 
