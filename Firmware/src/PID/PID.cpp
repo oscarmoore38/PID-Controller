@@ -6,22 +6,22 @@ PIDController:: PIDController(float KpVal, float KiVal){
     Integral = 0;  
 }
 
-float PIDController:: PIDControl(Motor& myMotor, LoopTime& myTime)
+float PIDController:: PIDControl(Motor& motorObj, LoopTime& myTime)
 {
-    float error = myMotor.RpmSetPoint - myMotor.RPMs;
+    float error = motorObj.RPMSetPoint - motorObj.motorRPM;
 
-    if((myMotor.PWM <= 0 && error < 0) || (myMotor.PWM >= 255 && error > 0)){
-        myMotor.PWM += (Kp * error);  
+    if((motorObj.PWM <= 0 && error < 0) || (motorObj.PWM >= 255 && error > 0)){
+        motorObj.PWM += (Kp * error);  
     } else{
         Integral += error * myTime.dt; 
-        myMotor.PWM += (Kp * error) + (Ki * Integral);  
+        motorObj.PWM += (Kp * error) + (Ki * Integral);  
     }
 
-    if (myMotor.PWM < 0){
-        myMotor.PWM = 0; 
-    } else if (myMotor.PWM > 255){
-        myMotor.PWM = 255; 
+    if (motorObj.PWM < 0){
+        motorObj.PWM = 0; 
+    } else if (motorObj.PWM > 255){
+        motorObj.PWM = 255; 
     }
 
-    return myMotor.PWM;
+    return motorObj.PWM;
 };

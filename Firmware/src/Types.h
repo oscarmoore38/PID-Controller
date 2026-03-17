@@ -1,21 +1,17 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-#include <Arduino.h>   
+#include <stdint.h>   
 
 struct Pins {
     uint8_t inPin1 = 2;
     uint8_t inPin2 = 3;
-    uint8_t motorOut1 = 4;
-    uint8_t motorOut2 = 5;
-    uint8_t ENA = 6;
-};
-
-struct Motor {
-    int PWM = 127;                 
-    float RPMs = 0;
-    const uint16_t motorPPR = 408;
-    const float RpmSetPoint = 150;
+    uint8_t motor1Out1 = 4;
+    uint8_t motor1Out2 = 5;
+    uint8_t motor2Out1 = 10;
+    uint8_t motor2Out2 = 11;
+    uint8_t ENA1 = 6;
+    uint8_t ENA2 = 9;
 };
 
 struct LoopTime {
